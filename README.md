@@ -43,6 +43,9 @@ poetry add pandas
 poetry add openpyxl
 pip install psycopg2
 poetry add django
+poetry add Pillow
+poetry add ipython
+
 
 ```
 
