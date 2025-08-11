@@ -6,18 +6,18 @@ from catalog.models import Product
 
 
 class ProductlistView(ListView):
-    """1"""
+    """Класс контроллера для отображения списка продуктов"""
 
     model = Product
 
 
 class ProductDetailView(DetailView):
-    """1"""
+    """Класс контроллера для отображения подробной информации"""
 
     model = Product
 
     def get_object(self, queryset=None):
-        """1"""
+        """Метод для отображения и счета количества просмотров"""
         self.object = super().get_object(queryset)
         self.object.views_counter += 1
         self.object.save()
@@ -25,7 +25,7 @@ class ProductDetailView(DetailView):
 
 
 class ProductCreateView(CreateView):
-    """1"""
+    """Класс контроллера для Создания продукта"""
 
     model = Product
     fields = ('name', 'description', 'image', 'category', 'price')
@@ -33,19 +33,19 @@ class ProductCreateView(CreateView):
 
 
 class ProductUpdateView(UpdateView):
-    """1"""
+    """Класс контроллера для Редактирования/Обновления продукта"""
 
     model = Product
     fields = ('name', 'description', 'image', 'category', 'price')
     success_url = reverse_lazy('catalog:product_list')
 
     def get_success_url(self):
-        """1"""
+        """Метод для редиректа обновленного продукта на страницу этого продукта"""
 
         return reverse('catalog:product_detail', args=[self.kwargs.get('pk')])
 
 class ProductDeleteView(DeleteView):
-    """1"""
+    """Класс контроллера для Удаления продукта"""
 
     model = Product
     success_url = reverse_lazy('catalog:product_list')
