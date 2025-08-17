@@ -1,21 +1,54 @@
 from django.shortcuts import render, get_object_or_404
-from catalog.models import Product, Category
+from django.urls import reverse_lazy, reverse
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+
+from catalog.models import Product
 
 
-def product_list (request):
-    """Контроллер для отображения базовой страницы"""
+class ProductlistView(ListView):
+    """Класс контроллера для отображения списка продуктов"""
 
-    products = Product.objects.all()
-    context = {"products" : products}
-    return render(request, 'product_list.html', context)
+    model = Product
 
 
-def product_detail(request, pk):
-    """Контроллер для отображения страницы по одному товару"""
+class ProductDetailView(DetailView):
+    """Класс контроллера для отображения подробной информации"""
 
-    product = get_object_or_404(Product, pk=pk)
-    context = {"product": product}
-    return render(request, 'product_detail.html', context)
+    model = Product
+
+    def get_object(self, queryset=None):
+        """Метод для отображения и счета количества просмотров"""
+        self.object = super().get_object(queryset)
+        self.object.views_counter += 1
+        self.object.save()
+        return self.object
+
+
+class ProductCreateView(CreateView):
+    """Класс контроллера для Создания продукта"""
+
+    model = Product
+    fields = ('name', 'description', 'image', 'category', 'price')
+    success_url = reverse_lazy('catalog:product_list')
+
+
+class ProductUpdateView(UpdateView):
+    """Класс контроллера для Редактирования/Обновления продукта"""
+
+    model = Product
+    fields = ('name', 'description', 'image', 'category', 'price')
+    success_url = reverse_lazy('catalog:product_list')
+
+    def get_success_url(self):
+        """Метод для редиректа обновленного продукта на страницу этого продукта"""
+
+        return reverse('catalog:product_detail', args=[self.kwargs.get('pk')])
+
+class ProductDeleteView(DeleteView):
+    """Класс контроллера для Удаления продукта"""
+
+    model = Product
+    success_url = reverse_lazy('catalog:product_list')
 
 
 def contacts(request):
