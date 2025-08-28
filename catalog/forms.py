@@ -1,3 +1,4 @@
+from django.forms import ModelForm
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Product
@@ -15,10 +16,7 @@ FORBIDDEN_WORDS = [
     "радар"
 ]
 
-class ProductForm(forms.ModelForm):
-    class Meta:
-        model = Product
-        fields = ['name', 'description', 'image', 'category', 'price']
+class StyleFormMixin:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -27,6 +25,13 @@ class ProductForm(forms.ModelForm):
                 field.widget.attrs.update({'class': 'checkbox-input'})
             else:
                 field.widget.attrs.update({'class': 'form-control'})
+
+class ProductForm(StyleFormMixin, ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'image', 'category', 'price']
+
+
 
     def clean_name(self):
         name = self.cleaned_data.get('name', '')

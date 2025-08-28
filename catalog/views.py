@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from catalog.forms import ProductForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from catalog.models import Product
 
@@ -12,7 +13,7 @@ class ProductlistView(ListView):
     model = Product
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     """Класс контроллера для отображения подробной информации"""
 
     model = Product
@@ -25,7 +26,7 @@ class ProductDetailView(DetailView):
         return self.object
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     """Класс контроллера для Создания продукта"""
 
     model = Product
@@ -33,7 +34,7 @@ class ProductCreateView(CreateView):
     success_url = reverse_lazy('catalog:product_list')
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     """Класс контроллера для Редактирования/Обновления продукта"""
 
     model = Product
@@ -45,7 +46,7 @@ class ProductUpdateView(UpdateView):
 
         return reverse('catalog:product_detail', args=[self.kwargs.get('pk')])
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     """Класс контроллера для Удаления продукта"""
 
     model = Product
