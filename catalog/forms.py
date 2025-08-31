@@ -29,7 +29,7 @@ class StyleFormMixin:
 class ProductForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'description', 'image', 'category', 'price']
+        fields = ["name", "description", "image", "category", "price"]
 
 
 
@@ -64,3 +64,9 @@ class ProductForm(StyleFormMixin, ModelForm):
                 if image.size > 5 * 1024 * 1024:
                     raise ValidationError('Размер изображения не должен превышать 5 МБ.')
         return image
+
+
+class ProductModeratorForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['is_published']

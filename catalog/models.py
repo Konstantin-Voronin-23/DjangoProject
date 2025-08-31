@@ -1,4 +1,5 @@
 from django.db import models
+from users.models import User
 
 
 class Product(models.Model):
@@ -40,6 +41,17 @@ class Product(models.Model):
         help_text="Укажите количество просмотров",
         default=0
     )
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='owned_products',
+        verbose_name='Продукт пользователя')
+
+    is_published = models.BooleanField(
+        default=True,
+        verbose_name="Опубликовано",
+        help_text="Указывает, опубликован ли товар на сайте. По умолчанию — не опубликован.",
+    )
 
     def __str__(self):
         """Метод для отображения информации пользователю"""
@@ -55,6 +67,9 @@ class Product(models.Model):
             "name",
             "category",
             "price",
+        ]
+        permissions = [
+            ('can_unpublish_product', 'Может отменять публикацию продукта'),
         ]
 
 
