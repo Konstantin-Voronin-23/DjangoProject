@@ -4,8 +4,12 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from catalog.forms import ProductForm, ProductModeratorForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from catalog.services import get_product_from_cache, get_products_by_category
 
-from catalog.models import Product
+from catalog.models import Product, Category
 
 
 class OwnerOrModeratorMixin(UserPassesTestMixin):
@@ -26,7 +30,11 @@ class ProductlistView(ListView):
 
     model = Product
 
+    def get_queryset(self):
+        return get_product_from_cache()
 
+
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class ProductDetailView(LoginRequiredMixin, DetailView):
     """Класс контроллера для отображения подробной информации"""
 
@@ -96,3 +104,26 @@ class ProductDeleteView(LoginRequiredMixin, OwnerOrModeratorMixin, DeleteView):
 
 def contacts(request):
     return render(request, "contacts.html")
+
+
+class CategoryProductsView(ListView):
+    """Представление для отображения продуктов по категории"""
+    template_name = 'catalog/category_products.html'
+    context_object_name = 'products'
+
+    def get_queryset(self):
+        category_name = self.kwargs['category_name']
+        result = get_products_by_category(category_name)
+        self.extra_context = {'category': result['category']}
+        return result['products']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self.extra_context)
+        return context
+
+
+def categories_list(request):
+    """Представление для отображения списка всех категорий"""
+    categories = Category.objects.all()
+    return render(request, 'catalog/categories_list.html', {'categories': categories})

@@ -1,0 +1,92 @@
+{% extends 'catalog/base.html' %}
+{% load my_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Продукты категории "{{ category.name }}"</h1>
+
+    <div class="mb-3">
+        <a href="{% url 'catalog:categories_list' %}" class="btn btn-secondary">
+            ← Назад к категориям
+        </a>
+    </div>
+
+    <div class="album py-5 bg-light">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+                {% for product in products %}
+                <div class="col">
+                    <div class="card shadow-sm h-100">
+                        {% if product.image %}
+                        <img src="{{ product.image|media_filter }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="text-white">Нет изображения</span>
+                        </div>
+                        {% endif %}
+
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description|truncatechars:100 }}</p>
+
+                            <div class="mb-2">
+                                <small class="text-muted">Категория: {{ product.category }}</small>
+                            </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">Создан: {{ product.created_at|date:"d M Y" }}</small>
+                            </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">Обновлен: {{ product.updated_at|date:"d M Y" }}</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong class="text-primary">Цена: {{ product.price }} руб.</strong>
+                            </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">Просмотров: {{ product.views_counter }}</small>
+                            </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">Владелец: {{ product.owner.username }}</small>
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <div class="btn-group w-100">
+                                <a href="{% url 'catalog:product_detail' product.pk %}" class="btn btn-sm btn-outline-primary">
+                                    Подробнее
+                                </a>
+
+                                {% if user.is_authenticated %}
+                                    {% if perms.catalog.can_unpublish_product or user == product.owner %}
+                                    <a href="{% url 'catalog:product_edit' product.pk %}" class="btn btn-sm btn-outline-secondary">
+                                        Редактировать
+                                    </a>
+                                    <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-sm btn-outline-danger">
+                                        Удалить
+                                    </a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <h4>В этой категории пока нет товаров</h4>
+                        <p class="text-muted">Попробуйте посмотреть другие категории</p>
+                        <a href="{% url 'catalog:categories_list' %}" class="btn btn-primary">
+                            Вернуться к категориям
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
